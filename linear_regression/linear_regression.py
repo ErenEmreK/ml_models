@@ -38,6 +38,7 @@ class LinearRegression:
 
         #since activation func not exists in linear reg.
         #derivative of weighted sum w.r.t itself will be 1
+        #so d_loss_z = d_loss_prediction * 1
         d_loss_z = d_loss_prediction * 1
 
         #gradients of loss w.r.t weights and bias using chain rule
@@ -54,7 +55,7 @@ class LinearRegression:
         return weights, bias
 
     def train(self, X_train, y_train, epochs=100, learning_rate=0.01):
-        weights, bias = self.initialize_parameters(len(X_train[1]))
+        weights, bias = self.weights, self.bias
         
         for epoch in range(epochs):
             predictions = self.forward_propagation(X_train, weights, bias)
