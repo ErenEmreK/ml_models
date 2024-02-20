@@ -1,16 +1,19 @@
 import numpy as np
 """
     Example Usage:
-    X_train = np.array([[1, 3, 2], [1, 2, 3], [1, 3, 4]])
-    y_train = np.array([3, 4, 5])
-    X_test = np.array([[4, 5, 5], [1, 5, 6]])
-    y_test = np.array([6, 7])
-    epochs = 1000
-    learning_rate = 0.01
     
-    lr = LinearRegression(len(X_train[1]))
-    lr.train(X_train, y_train, epochs, learning_rate)
-    lr.test(X_test, y_test)
+    #Create an example dataset
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+
+    X, y = make_classification(n_samples=1000, n_features=20, n_classes=2, 
+        n_clusters_per_class=1, weights=[0.5, 0.5], random_state=42)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    lr = LinearRegression(len(X_train[0]))
+    lr.train(X_train, y_train, 1000, 0.01)
+    lr.test(X_test, y_test) 
 """
     
 class LinearRegression:
@@ -77,4 +80,5 @@ class LinearRegression:
         print(f"Test loss: {test_loss}")
         
         return test_loss
-        
+
+
