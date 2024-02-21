@@ -12,9 +12,10 @@ class LeafNode:
         self.majority_label = majority_label
         
 class DecisionTree:
-    def __init__(self):
-        self.max_depth = 10
-        self.min_sample_per_leaf = 5
+    def __init__(self, max_depth=10, min_sample_per_leaf=10):
+        self.max_depth = max_depth
+        self.min_sample_per_leaf = min_sample_per_leaf
+        self.tree = None
     
     def calculate_mse(self, X, y, left_data, right_data):
         #we use mse determining the best split since it is easy to implement
@@ -78,7 +79,7 @@ class DecisionTree:
         unique_items, counts = np.unique(y, return_counts=True)
         return unique_items[np.argmax(counts)]
         
-    def build_tree(self, X, y, depth):
+    def build_tree(self, X, y, depth=0):
         #check if a stopping criteria is met
         #return node as a leaf node(terminal node)
         if self.stopping_criteria(X, y, depth):
@@ -100,7 +101,14 @@ class DecisionTree:
         #this function will return root node)
         return DecisionNode(split_feature, split_value, left_subtree, right_subtree)
     
-    
+    def create_tree(self, X, y):
+        self.tree = self.build_tree(X, y)
+        print("Decision Tree has been built.")
+        
+    def test(self, X_test, y_test):
+        #TODO make test
+        pass
+       
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
@@ -110,4 +118,4 @@ X, y = make_classification(n_samples=1000, n_features=15, n_classes=3,
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 dt = DecisionTree()
-dt.build_tree(X_train, y_train, 0)
+dt.create_tree(X_train, y_train)
