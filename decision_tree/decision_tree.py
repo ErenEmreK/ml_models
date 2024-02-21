@@ -104,10 +104,16 @@ class DecisionTree:
     def create_tree(self, X, y):
         self.tree = self.build_tree(X, y)
         print("Decision Tree has been built.")
+    
+    def get_label(self, data):
+        node = self.tree
+        while not isinstance(node, LeafNode):
+            value = data[node.split_feature]
+            node = node.left_subtree if value <= node.split_value else node.right_subtree
         
     def test(self, X_test, y_test):
-        #TODO make test
-        pass
+        for data in X_test:
+            pass
        
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
