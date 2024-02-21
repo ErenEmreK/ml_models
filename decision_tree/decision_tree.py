@@ -12,7 +12,7 @@ class LeafNode:
         self.majority_label = majority_label
         
 class DecisionTree:
-    def __init__(self, max_depth=10, min_sample_per_leaf=10):
+    def __init__(self, max_depth=5, min_sample_per_leaf=20,):
         self.max_depth = max_depth
         self.min_sample_per_leaf = min_sample_per_leaf
         self.tree = None
@@ -35,7 +35,7 @@ class DecisionTree:
         """
         best_feature = None
         best_value = None
-        best_point = -np.inf
+        best_point = np.inf
         
         #we go through every feature and every value to find best split 
         for feature_number in range(X.shape[1]):
@@ -60,16 +60,20 @@ class DecisionTree:
         return best_feature, best_value
     
     def split_data(self, X, y, split_feature, split_value):
-        left_i = np.where(X[:, split_feature] <= split_value)[0]
-        right_i = np.where(X[:, split_feature] > split_value)[0]
+        left = np.where(X[:, split_feature] <= split_value)[0]
+        right = np.where(X[:, split_feature] > split_value)[0]
         
-        left_X, left_y = X[left_i], y[left_i]
-        right_X, right_y = X[right_i], y[right_i]
+        #check if one of subtrees are empty
+        if len(left) == 0 or len(right) == 0:
+            return None, None, None, None
+        
+        left_X, left_y = X[left], y[left]
+        right_X, right_y = X[right], y[right]
         
         return left_X, left_y, right_X, right_y
     
     def stopping_criteria(self, X, y, depth):
-        if not (depth < self.max_depth) or not (len(y) < self.min_sample_per_leaf):
+        if not (depth < self.max_depth) or (len(y) < self.min_sample_per_leaf) or not (X.size and y.size):
             return True
         return False
         #TODO add minimum impurity decrease or minimum improvement cases
@@ -105,23 +109,39 @@ class DecisionTree:
         self.tree = self.build_tree(X, y)
         print("Decision Tree has been built.")
     
-    def get_label(self, data):
+    def get_label(self, instance):
+        #we return label for instance(one data of a X dataset) 
         node = self.tree
         while not isinstance(node, LeafNode):
-            value = data[node.split_feature]
+            value = instance[node.split_feature]
             node = node.left_subtree if value <= node.split_value else node.right_subtree
+        return node.majority_label
         
-    def test(self, X_test, y_test):
-        for data in X_test:
-            pass
-       
+    def test(self, X, y):
+        if self.tree:
+            predictions = np.array([self.get_label(i) for i in X])
+            y = np.array(y)
+            
+            if len(y) == len(predictions):
+                accuracy = np.sum(predictions == y) / len(y)
+                print(f"Test accuracy: {accuracy * 100}%")
+                
+                return accuracy
+        
+            print("Prediction list must have same length as label list.")
+            return None
+        
+        print("There is no available tree.")
+        return None
+    
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
 X, y = make_classification(n_samples=1000, n_features=15, n_classes=3, 
-    n_clusters_per_class=1, weights=[0.5, 0.5], random_state=42)
+    n_clusters_per_class=1, weights=[0.3, 0.3, 0.4], random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 dt = DecisionTree()
 dt.create_tree(X_train, y_train)
+dt.test(X_test, y_test)
