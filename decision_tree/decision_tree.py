@@ -1,4 +1,50 @@
 import numpy as np
+"""
+    Example Usage:
+    
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+
+    X, y = make_classification(n_samples=1000, n_features=15, n_classes=3, 
+        n_clusters_per_class=1, weights=[0.3, 0.3, 0.4], random_state=42)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    dt = DecisionTree(split_parameter=calculate_mse)
+    dt.create_tree(X_train, y_train)
+    dt.test(X_test, y_test)
+    
+"""
+def calculate_mse(X, y, left_data, right_data):
+    #we use mse determining the best split since it is easy to implement
+    left_values = y[left_data]
+    right_values = y[right_data]
+    
+    left_point = np.sum((left_values - np.mean(left_values)) ** 2)
+    right_point = np.sum((right_values - np.mean(right_values)) ** 2)
+    
+    return left_point + right_point
+    
+def gini_impurity(X, y, left_data, right_data):
+    # Get the labels for left and right subsets
+    left_labels = y[left_data]
+    right_labels = y[right_data]
+    
+    # Calculate the number of samples in each subset
+    total_samples = len(left_labels) + len(right_labels)
+    
+    # Calculate the proportion of each class in left and right subsets
+    left_counts = np.bincount(left_labels)
+    right_counts = np.bincount(right_labels)
+    
+    # Calculate the Gini impurity for left and right subsets
+    left_gini = 1 - np.sum((left_counts / len(left_labels))**2)
+    right_gini = 1 - np.sum((right_counts / len(right_labels))**2)
+    
+    # Calculate the weighted average Gini impurity
+    gini_impurity = (len(left_labels) / total_samples) * left_gini + (len(right_labels) / total_samples) * right_gini
+    
+    return gini_impurity
 
 class DecisionNode:
     def __init__(self, split_feature, split_value, left_subtree, right_subtree):
@@ -12,21 +58,12 @@ class LeafNode:
         self.majority_label = majority_label
         
 class DecisionTree:
-    def __init__(self, max_depth=5, min_sample_per_leaf=20,):
+    def __init__(self, max_depth=5, min_sample_per_leaf=20, split_parameter=calculate_mse):
         self.max_depth = max_depth
         self.min_sample_per_leaf = min_sample_per_leaf
+        self.split_parameter = split_parameter
         self.tree = None
-    
-    def calculate_mse(self, X, y, left_data, right_data):
-        #we use mse determining the best split since it is easy to implement
-        left_values = y[left_data]
-        right_values = y[right_data]
         
-        left_point = np.sum((left_values - np.mean(left_values)) ** 2)
-        right_point = np.sum((right_values - np.mean(right_values)) ** 2)
-        
-        return left_point + right_point
-    
     def find_best_split(self, X, y):
         """
         Evaluate all possible splits for each feature.
@@ -48,8 +85,8 @@ class DecisionTree:
                 left_data = np.where(feature_values <= split_value)[0]
                 right_data = np.where(feature_values > split_value)[0]
         
-                #since point is mse we take the lowest as best
-                point = self.calculate_mse(X, y, left_data, right_data)
+                #we get lowest impurity or mse 
+                point = self.split_parameter(X, y, left_data, right_data)
 
                 if point < best_point:
                     best_feature = feature_number
@@ -134,14 +171,3 @@ class DecisionTree:
         print("There is no available tree.")
         return None
     
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-
-X, y = make_classification(n_samples=1000, n_features=15, n_classes=3, 
-    n_clusters_per_class=1, weights=[0.3, 0.3, 0.4], random_state=42)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-dt = DecisionTree()
-dt.create_tree(X_train, y_train)
-dt.test(X_test, y_test)
