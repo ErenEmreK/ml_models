@@ -26,23 +26,21 @@ def calculate_mse(X, y, left_data, right_data):
     return left_point + right_point
     
 def gini_impurity(X, y, left_data, right_data):
-    # Get the labels for left and right subsets
-    left_labels = y[left_data]
-    right_labels = y[right_data]
+    left_values = y[left_data]
+    right_values = y[right_data]
     
-    # Calculate the number of samples in each subset
-    total_samples = len(left_labels) + len(right_labels)
+    total_samples = len(left_values) + len(right_values)
     
-    # Calculate the proportion of each class in left and right subsets
-    left_counts = np.bincount(left_labels)
-    right_counts = np.bincount(right_labels)
+    #proportion of each class in each subset
+    left_counts = np.bincount(left_values)
+    right_counts = np.bincount(right_values)
     
-    # Calculate the Gini impurity for left and right subsets
-    left_gini = 1 - np.sum((left_counts / len(left_labels))**2)
-    right_gini = 1 - np.sum((right_counts / len(right_labels))**2)
+    #we take the Gini impurity for left and right subsets
+    left_point = 1 - np.sum((left_counts / len(left_values))**2)
+    right_point = 1 - np.sum((right_counts / len(right_values))**2)
     
-    # Calculate the weighted average Gini impurity
-    gini_impurity = (len(left_labels) / total_samples) * left_gini + (len(right_labels) / total_samples) * right_gini
+    #we take the weighted average gini impurity
+    gini_impurity = (len(left_values) / total_samples) * left_point + (len(right_values) / total_samples) * right_point
     
     return gini_impurity
 
