@@ -12,8 +12,7 @@ def initialize_parameters(layer_dims):
     for l in range(1, L + 1):
         parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
-    
-    print(parameters)
+
     return parameters
 
 # Step 2: Forward Propagation
@@ -48,4 +47,4 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 w = initialize_parameters([5, 2, 1])
 a, z = forward_propagation(X_train[1], w)
 
-#print(z)
+print(z)

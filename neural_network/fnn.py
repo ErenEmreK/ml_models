@@ -5,7 +5,7 @@ def sigmoid(x):
         return 1 / (1 + e ** -x)
  
 def mse_loss(predictions, y):
-    pass  
+    pass
    
 class NeuralNetwork:
     def __init__(self, layer_structure, activation=sigmoid):
@@ -16,6 +16,7 @@ class NeuralNetwork:
         #we get layer dims as a list f.e [2, 3, 1] means we have 2 3 1 nodes in
         #each layer respectively, 2 will be feature_count since its first layer
         
+        #even though storing them as arrays is possible dics are better fit for nns
         weights = {}
         biases = {}
                 
@@ -26,35 +27,48 @@ class NeuralNetwork:
         return weights, biases
 
     def forward_propagation(self, X, weights, biases, activation=sigmoid):
-        #z_vals is pre-activation values,
-        #a_vals is activated values for each neuron
-        a_vals = {} 
-        z_vals = {}
         
-        a_vals[0] = X
-        z_vals[0] = X
+        A = {0: X}
+        Z = {0: None}
+        predictions = []
         
         length = len(weights)
         #for every layer we dot layer nodes to weights and add bias
         #and apply activation
         for l in range(1, length):
-            z = np.dot(weights[l], a_vals[l-1]) + biases[l]    
+            z = np.dot(weights[l], A[l-1]) + biases[l]    
             
-            a_vals[l] = activation(z)
-            z_vals[l] = z
+            A[l] = activation(z)
+            Z[l] = z
             
-        z_vals[length] = np.dot(weights[length], a_vals[length-1]) + biases[length]
-        a_vals[length] = z_vals[length]
+        Z[length] = np.dot(weights[length], A[length-1]) + biases[length]
+        A[length] = Z[length]
         
-        return a_vals, z_vals
+        prediction = np.sum(Z[length]) + biases[length]
+        return A, Z, prediction
     
-       
-    def train(self, X, y, epochs=10, loss_fn=mse_loss):
+    def backpropagation(self, predictions, true_labels):
+        pass
+     
+    def update_parameters(self, gradients, learning_rate):
+        pass
+         
+    def train(self, X, y, epochs=1000, learning_rate=0.01, loss_fn=mse_loss):
         w, b = self.initialize_parameters(self.layer_structure)
         
         for epoch in epochs:
             A, Z = self.forward_propagation(X, y, w, b, self.activation)
             loss = loss_fn(A, y)
+    
+            print(f"Epoch: {epoch}, Loss: {loss}")
+            
+            gradients = self.backpropagation()
+            self.update_parameters(gradients, learning_rate)
+         
+         
+         
+         
+         
     
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
@@ -64,8 +78,8 @@ X, y = make_classification(n_samples=10, n_features=5, n_classes=2,
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-nn = NeuralNetwork()
-w, b= nn.initialize_parameters([5, 2, 1])
-a, z = nn.forward_propagation(X_train[1], w, b)
+nn = NeuralNetwork([5, 2, 3])
+w, b = nn.initialize_parameters(nn.layer_structure)
+a, z, p = nn.forward_propagation(X_train[1], w, b)
 
-#print(z)
+print(a, p)
