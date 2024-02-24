@@ -3,10 +3,14 @@ from math import e
 
 def sigmoid(x):
         return 1 / (1 + e ** -x)
-    
+ 
+def mse_loss(predictions, y):
+    pass  
+   
 class NeuralNetwork:
-    def __init__(self, layer_structure):
+    def __init__(self, layer_structure, activation=sigmoid):
         self.layer_structure = layer_structure
+        self.activation = activation
     
     def initialize_parameters(self, layer_structure):
         #we get layer dims as a list f.e [2, 3, 1] means we have 2 3 1 nodes in
@@ -22,7 +26,8 @@ class NeuralNetwork:
         return weights, biases
 
     def forward_propagation(self, X, weights, biases, activation=sigmoid):
-        
+        #z_vals is pre-activation values,
+        #a_vals is activated values for each neuron
         a_vals = {} 
         z_vals = {}
         
@@ -42,13 +47,14 @@ class NeuralNetwork:
         a_vals[length] = z_vals[length]
         
         return a_vals, z_vals
+    
+       
+    def train(self, X, y, epochs=10, loss_fn=mse_loss):
+        w, b = self.initialize_parameters(self.layer_structure)
         
-    def train(self, X, y):
-        weights, biases = self.initialize_parameters(self.layer_structure)
-        
-    
-    
-    
+        for epoch in epochs:
+            A, Z = self.forward_propagation(X, y, w, b, self.activation)
+            loss = loss_fn(A, y)
     
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
