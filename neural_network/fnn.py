@@ -44,8 +44,7 @@ class NeuralNetwork:
         Z[length] = np.dot(weights[length], A[length-1]) + biases[length]
         A[length] = Z[length]
         
-        prediction = np.sum(Z[length]) + biases[length]
-        return A, Z, prediction
+        return A, Z
     
     def backpropagation(self, predictions, true_labels):
         pass
@@ -78,8 +77,8 @@ X, y = make_classification(n_samples=10, n_features=5, n_classes=2,
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-nn = NeuralNetwork([5, 2, 3])
+nn = NeuralNetwork([5, 3, 1])
 w, b = nn.initialize_parameters(nn.layer_structure)
-a, z, p = nn.forward_propagation(X_train[1], w, b)
+a, z = nn.forward_propagation(X_train[1], w, b)
 
-print(a, p)
+print(a)
