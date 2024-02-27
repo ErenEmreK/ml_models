@@ -30,25 +30,41 @@ class NeuralNetwork:
         return weights, biases
 
     def forward_propagation(self, X, weights, biases, activation=sigmoid):
+        #Although seems trivial, i made too much mistakes here so i went back
+        #and make it very basic just to make it work so:
+        #TODO clean and improve efficiency here
         
         A = {0: X}
         Z = {0: None}
-        predictions = []
         
-        length = len(weights)
         #for every layer we dot layer nodes to weights and add bias
         #and apply activation
-        for l in range(1, length):
-            z = np.dot(weights[l], A[l-1]) + biases[l]    
-            
-            A[l] = activation(z)
-            Z[l] = z
-            
-        Z[length] = np.dot(weights[length], A[length-1]) + biases[length]
-        A[length] = Z[length]
+        layers = len(weights)
+        for layer in range(1, layers):
+            neurons = len(weights[layer])
+            a_values = []
+            z_values = []
+            for neuron in range(neurons):
+                z = (np.sum(weights[layer][neuron] * A[layer-1]) + biases[layer][neuron]).item()
+                
+                a_values.append(activation(z))
+                z_values.append(z)
+                
+            A[layer] = np.array(a_values)
+            Z[layer] = np.array(z_values)
+        
+        #we do it for the output layer too, but dont use activation for it 
+        values = []
+        neurons = len(weights[layers])
+        for neuron in range(neurons):   
+            z = (np.sum(weights[layers][neuron] * A[layers-1]) + biases[layers][neuron]).item()
+            values.append(z)
+        
+        A[layers] = values
+        Z[layers] = values
         
         return A, Z
-    
+        
     def backpropagation(self, predictions, true_labels):
         pass
      
@@ -80,7 +96,7 @@ X, y = make_classification(n_samples=10, n_features=5, n_classes=2,
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-nn = NeuralNetwork([5, 3, 1])
+nn = NeuralNetwork([5, 3, 2])
 w, b = nn.initialize_parameters(nn.layer_structure)
 a, z = nn.forward_propagation(X_train[1], w, b)
 
