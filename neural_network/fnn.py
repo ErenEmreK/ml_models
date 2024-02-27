@@ -60,6 +60,7 @@ class NeuralNetwork:
             z = (np.sum(weights[layers][neuron] * A[layers-1]) + biases[layers][neuron]).item()
             values.append(z)
         
+        values = np.array(values)
         A[layers] = values
         Z[layers] = values
         
@@ -85,8 +86,6 @@ class NeuralNetwork:
          
          
          
-         
-         
     
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
@@ -101,3 +100,4 @@ w, b = nn.initialize_parameters(nn.layer_structure)
 a, z = nn.forward_propagation(X_train[1], w, b)
 
 print(a)
+print(z)
