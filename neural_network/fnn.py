@@ -1,8 +1,8 @@
 import numpy as np
 from math import e
 
-#TODO make each neuron produce one value
-
+#NN here will be available for single-target regression tasks
+#(one output neuron-continous value) for simplicities sake
 
 def sigmoid(x):
         return 1 / (1 + e ** -x)
@@ -33,39 +33,49 @@ class NeuralNetwork:
         #Although seems trivial, i made too much mistakes here so i went back
         #and make it very basic just to make it work so:
         #TODO clean and improve efficiency here
+        _A = []
+        _Z = []
         
-        A = {0: X}
-        Z = {0: None}
+        for i in X:
+            A = {0: i}
+            Z = {0: None}
+            
+            #for every layer we dot layer nodes to weights and add bias
+            #and apply activation
+            layers = len(weights)
+            for layer in range(1, layers):
+                neurons = len(weights[layer])
+                a_values = []
+                z_values = []
+                for neuron in range(neurons):
+                    z = (np.sum(weights[layer][neuron] * A[layer-1]) + biases[layer][neuron]).item()
+                    
+                    a_values.append(activation(z))
+                    z_values.append(z)
+                    
+                A[layer] = np.array(a_values)
+                Z[layer] = np.array(z_values)
+            
+            #we do it for the output layer too, but dont use activation for it 
+            values = []
+            neurons = len(weights[layers])
+            for neuron in range(neurons):   
+                z = (np.sum(weights[layers][neuron] * A[layers-1]) + biases[layers][neuron]).item()
+                values.append(z)
+            
+            values = np.array(values)
+            A[layers] = values
+            Z[layers] = values
         
-        #for every layer we dot layer nodes to weights and add bias
-        #and apply activation
-        layers = len(weights)
-        for layer in range(1, layers):
-            neurons = len(weights[layer])
-            a_values = []
-            z_values = []
-            for neuron in range(neurons):
-                z = (np.sum(weights[layer][neuron] * A[layer-1]) + biases[layer][neuron]).item()
+            _A.append(A)
+            _Z.append(Z)
+        
+        return _A, _Z
+
+    def get_predictions(self, A):
+        #We will take final predictions from Activated list
+        pass
                 
-                a_values.append(activation(z))
-                z_values.append(z)
-                
-            A[layer] = np.array(a_values)
-            Z[layer] = np.array(z_values)
-        
-        #we do it for the output layer too, but dont use activation for it 
-        values = []
-        neurons = len(weights[layers])
-        for neuron in range(neurons):   
-            z = (np.sum(weights[layers][neuron] * A[layers-1]) + biases[layers][neuron]).item()
-            values.append(z)
-        
-        values = np.array(values)
-        A[layers] = values
-        Z[layers] = values
-        
-        return A, Z
-        
     def backpropagation(self, predictions, true_labels):
         pass
      
@@ -95,9 +105,8 @@ X, y = make_classification(n_samples=10, n_features=5, n_classes=2,
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-nn = NeuralNetwork([5, 3, 2])
+nn = NeuralNetwork([5, 3, 1])
 w, b = nn.initialize_parameters(nn.layer_structure)
-a, z = nn.forward_propagation(X_train[1], w, b)
+a, z = nn.forward_propagation(X_train, w, b)
 
 print(a)
-print(z)
