@@ -1,10 +1,10 @@
 import numpy as np
 from math import e
 
-
+#TODO backprop func fix, shape of weigths and deltas. 
 
 def sigmoid(x):
-        return 1 / (1 + e ** -x)
+    return 1 / (1 + np.exp(-x))
  
 def mse_loss(predictions, y):
     pass
@@ -75,33 +75,26 @@ class NeuralNetwork:
         
         return _A, _Z, predictions
                 
-    def backpropagation(self, X, predictions, true_labels, A, Z):
+    def backpropagation(self, X, predictions, true_labels, A, Z, weights, biases):
         #NN here will be available for single-target regression tasks
         #(one output neuron-continous value) for simplicities sake
         #so we assume predictions will one numerical value
         predicted = [p for sublist in predictions for p in sublist]
-        error = predicted - true_labels
         
-        
-        deltas = [None] * self.num_layers
+        layers = len(weights)
+        deltas = [None] * layers
         grads_weights = {}
         grads_biases = {}
         
         #error for output layer
-        deltas[-1] = (predictions - true_labels) / X.shape[0]
+        deltas[-1] = (predicted - true_labels) / X.shape[0]
         
-        for l in range(self.num_layers - 2, -1, -1):
-            deltas[l] = np.dot(deltas[l+1], self.weights[l+1].T) * self.sigmoid_derivative(Z[l])
-
-        # Compute gradients for weights and biases
-        grads_weights[self.num_layers - 1] = np.dot(A[self.num_layers - 2].T, deltas[self.num_layers - 1])
-        grads_biases[self.num_layers - 1] = np.sum(deltas[self.num_layers - 1], axis=0, keepdims=True)
-
-        for l in range(self.num_layers - 2, 0, -1):
-            grads_weights[l] = np.dot(A[l-1].T, deltas[l])
-            grads_biases[l] = np.sum(deltas[l], axis=0, keepdims=True)
+        for l in range(layers - 2, -1, -1):
+            print(deltas[-1]) 
             
-        return grads_weights, grads_biases
+            """* (self.activation(Z[l]) * (1 - self.activation(Z[l])))"""
+
+        return None, None
      
     def update_parameters(self, gradients, learning_rate):
         pass
@@ -132,6 +125,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 nn = NeuralNetwork([5, 3, 1])
 w, b = nn.initialize_parameters(nn.layer_structure)
 a, z, predictions = nn.forward_propagation(X_train, w, b)
-zz, zz2 = nn.backpropagation(X_train, predictions, y_train, a, z)
+zz, zz2 = nn.backpropagation(X_train, predictions, y_train, a, z, w, b)
 
-print(zz)
+#print(zz)
