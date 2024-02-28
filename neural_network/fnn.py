@@ -1,5 +1,4 @@
 import numpy as np
-from math import e
 
 #TODO backprop func fix, shape of weigths and deltas. 
 
