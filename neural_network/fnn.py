@@ -1,8 +1,7 @@
 import numpy as np
 from math import e
 
-#NN here will be available for single-target regression tasks
-#(one output neuron-continous value) for simplicities sake
+
 
 def sigmoid(x):
         return 1 / (1 + e ** -x)
@@ -35,6 +34,7 @@ class NeuralNetwork:
         #TODO clean and improve efficiency here
         _A = []
         _Z = []
+        predictions = []
         
         for i in X:
             A = {0: i}
@@ -62,22 +62,27 @@ class NeuralNetwork:
             for neuron in range(neurons):   
                 z = (np.sum(weights[layers][neuron] * A[layers-1]) + biases[layers][neuron]).item()
                 values.append(z)
+                
+            #values will be predictions
+            predictions.append(values)
             
             values = np.array(values)
             A[layers] = values
             Z[layers] = values
-        
+             
             _A.append(A)
             _Z.append(Z)
         
-        return _A, _Z
-
-    def get_predictions(self, A):
-        #We will take final predictions from Activated list
-        pass
+        return _A, _Z, predictions
                 
-    def backpropagation(self, predictions, true_labels):
-        pass
+    def backpropagation(self, X, predictions, true_labels):
+        #NN here will be available for single-target regression tasks
+        #(one output neuron-continous value) for simplicities sake
+        #so we assume predictions will one numerical value
+        predicted = [p for sublist in predictions for p in sublist]
+        error = predicted - true_labels
+        
+        
      
     def update_parameters(self, gradients, learning_rate):
         pass
@@ -86,7 +91,7 @@ class NeuralNetwork:
         w, b = self.initialize_parameters(self.layer_structure)
         
         for epoch in epochs:
-            A, Z = self.forward_propagation(X, y, w, b, self.activation)
+            A, Z, predictions = self.forward_propagation(X, y, w, b, self.activation)
             loss = loss_fn(A, y)
     
             print(f"Epoch: {epoch}, Loss: {loss}")
@@ -107,6 +112,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 nn = NeuralNetwork([5, 3, 1])
 w, b = nn.initialize_parameters(nn.layer_structure)
-a, z = nn.forward_propagation(X_train, w, b)
+a, z, predictions = nn.forward_propagation(X_train, w, b)
+zz = nn.backpropagation(X_train, predictions, y_train)
 
-print(a)
+print(zz)
